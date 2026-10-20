@@ -1,0 +1,35 @@
+# Copia independiente para el servidor B (Servidor-107, sr.velsat.pe / sub.velsat.pe).
+# Proyecto, imagen y contenedor con nombres distintos de la original para que no choquen.
+name: notificaciones-trackbell-sr
+
+services:
+  geocerca-notifications:
+    build:
+      context: ./GeocercaNotificationsService
+      dockerfile: Dockerfile
+    image: notificaciones-trackbell-sr:latest
+    container_name: notificaciones-trackbell-sr
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      # Expuesto ÚNICAMENTE en localhost para Nginx (puerto 3010 en host -> 8080 en contenedor)
+      - "127.0.0.1:3010:8080"
+    networks:
+      # Red compartida con mysql-gts, backend-mobile y demás contenedores de B
+      - app-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  app-net:
+    external: true
