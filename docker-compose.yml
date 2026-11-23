@@ -15,6 +15,9 @@ services:
     ports:
       # Expuesto ÚNICAMENTE en localhost para Nginx (puerto 3010 en host -> 8080 en contenedor)
       - "127.0.0.1:3010:8080"
+    volumes:
+      # Base de datos SQLite embebida con preferencias y configuración por cuenta
+      - ./data:/app/data
     networks:
       # Red compartida con mysql-gts, backend-mobile y demás contenedores de B
       - app-net

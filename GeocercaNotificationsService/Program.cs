@@ -27,6 +27,7 @@ builder.Services.AddControllers();
 
 // ── 3. Repositorios ───────────────────────────────────────────────────────────
 builder.Services.AddScoped<IVisitasGeocercaRepository, VisitasGeocercaRepository>();
+builder.Services.AddSingleton<IConfiguracionRepository, ConfiguracionRepository>();
 
 // ── 4. SignalR ────────────────────────────────────────────────────────────────
 builder.Services.AddSignalR();
@@ -34,13 +35,15 @@ builder.Services.AddSignalR();
 // ── 5. Handlers de eventos ───────────────────────────────────────────────────
 builder.Services.AddScoped<IGeofenceGeometryService, GeofenceGeometryService>();
 builder.Services.AddScoped<IEventHandler, GeofenceEventHandler>();
+builder.Services.AddScoped<IEventHandler, DeviceAlertEventHandler>();
 builder.Services.AddScoped<EventHandlerRegistry>();
 
 // ── 6. Background services de sondeo ─────────────────────────────────────────
 builder.Services.AddHostedService<EventPollingService>();
 
-// ── 7. WhatsApp (Cliente HTTP, Lógica de Negocio y Worker Independiente) ───────
+// ── 7. WhatsApp y Sincronización con Traccar ──────────────────────────────────
 builder.Services.AddHttpClient<IWhatsAppClient, WhatsAppClient>();
+builder.Services.AddHttpClient<ITraccarSpeedLimitService, TraccarSpeedLimitService>();
 builder.Services.AddScoped<IWhatsAppNotificationService, WhatsAppNotificationService>();
 builder.Services.AddHostedService<WhatsAppPollingService>();
 
@@ -64,7 +67,7 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
-        Description = "Ingrese el token estático permanente (valor de StaticApiToken en el .env). Swagger antepondrá 'Bearer ' automáticamente.",
+        Description = "Ingrese el token estático permanente (por defecto: 'trackvel-static-token-2026'). Swagger antepondrá 'Bearer ' automáticamente.",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.Http,
         Scheme = "bearer",
